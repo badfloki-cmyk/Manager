@@ -289,7 +289,7 @@ export default function MessagesPage() {
                                     <button
                                         className="px-10 py-4 bg-brand hover:bg-brand-dark text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 flex items-center gap-3 shadow-xl shadow-brand/20 disabled:opacity-50"
                                         onClick={handleSendMessage}
-                                        disabled={!newMessage || isSending}
+                                        disabled={!newMessage || isThinking}
                                     >
                                         {isThinking ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingMessageId ? <Pencil className="w-4 h-4" /> : <Send className="w-4 h-4" />)}
                                         {editingMessageId ? "Aktualisieren" : "Senden"}
