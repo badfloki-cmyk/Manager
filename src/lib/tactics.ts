@@ -14,6 +14,8 @@ export interface TacticData {
         color: string;
     }[];
     drawingData?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export const getTactics = async () => {

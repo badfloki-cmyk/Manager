@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     ArrowLeft,
     Save,
     RotateCcw,
     LayoutDashboard,
-    Users,
     Plus,
     Pencil,
     Eraser,
@@ -47,7 +46,6 @@ export default function TacticsPage() {
     const [playersOnPitch, setPlayersOnPitch] = useState<PlayerPos[]>([]);
     const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
     const [savedTactics, setSavedTactics] = useState<TacticData[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
     // UI State
     const [isSaving, setIsSaving] = useState(false);
@@ -75,8 +73,6 @@ export default function TacticsPage() {
                 setSavedTactics(tactics || []);
             } catch (err) {
                 console.error("Init error:", err);
-            } finally {
-                setIsLoading(false);
             }
         };
         init();
