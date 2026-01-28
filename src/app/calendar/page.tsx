@@ -23,13 +23,20 @@ export default function CalendarPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // New Event Form State
-    const [newEvent, setNewEvent] = useState({
+    const [newEvent, setNewEvent] = useState<{
+        title: string;
+        description: string;
+        type: "Training" | "Match" | "Event";
+        date: string;
+        location: string;
+        team: "1. Mannschaft" | "2. Mannschaft" | "Both";
+    }>({
         title: "",
         description: "",
-        type: "Training" as const,
+        type: "Training",
         date: "",
         location: "KGS Pattensen",
-        team: "Both" as const,
+        team: "Both",
     });
 
     const loadEvents = useCallback(async () => {

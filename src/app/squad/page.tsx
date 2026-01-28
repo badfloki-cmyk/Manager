@@ -23,13 +23,20 @@ export default function SquadPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // New Player Form State
-    const [newPlayer, setNewPlayer] = useState({
+    const [newPlayer, setNewPlayer] = useState<{
+        firstName: string;
+        lastName: string;
+        number: string;
+        position: string;
+        status: "Active" | "Inactive";
+        role: "Regular" | "Captain" | "Staff";
+    }>({
         firstName: "",
         lastName: "",
         number: "",
         position: "Sturm",
-        status: "Active" as const,
-        role: "Regular" as const,
+        status: "Active",
+        role: "Regular",
     });
 
     const loadPlayers = useCallback(async () => {
