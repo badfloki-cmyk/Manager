@@ -80,17 +80,26 @@ export default function SquadPage() {
         try {
             let photoUrl = "";
             if (selectedFile) {
+                console.log("Starting upload for:", selectedFile.name);
                 const response = await fetch(`/api/upload?filename=${selectedFile.name}`, {
                     method: 'POST',
                     body: selectedFile,
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+                }
+
                 const blob = await response.json();
+                console.log("Upload successful, URL:", blob.url);
                 photoUrl = blob.url;
             }
 
+            console.log("Creating player with data:", { ...newPlayer, photoUrl });
             await createPlayer({
                 ...newPlayer,
-                number: parseInt(newPlayer.number),
+                number: parseInt(newPlayer.number || "0"),
                 team: team,
                 photoUrl: photoUrl,
                 stats: { goals: 0, assists: 0, appearances: 0 }
