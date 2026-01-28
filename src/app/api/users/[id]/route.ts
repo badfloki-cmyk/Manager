@@ -6,9 +6,10 @@ import { authOptions } from "@/lib/auth";
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "admin") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,11 +18,11 @@ export async function DELETE(
         await connectDB();
 
         // Prevent deleting yourself
-        if (session.user.id === params.id) {
+        if (session.user.id === id) {
             return NextResponse.json({ error: "Du kannst deinen eigenen Account nicht löschen" }, { status: 400 });
         }
 
-        const user = await User.findByIdAndDelete(params.id);
+        const user = await User.findByIdAndDelete(id);
 
         if (!user) {
             return NextResponse.json({ error: "Benutzer nicht gefunden" }, { status: 404 });

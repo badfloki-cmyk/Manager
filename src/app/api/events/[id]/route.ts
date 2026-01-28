@@ -6,9 +6,10 @@ import { authOptions } from "@/lib/auth";
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "admin") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -16,7 +17,7 @@ export async function PATCH(
 
         await connectDB();
         const body = await request.json();
-        const event = await Event.findByIdAndUpdate(params.id, body, { new: true });
+        const event = await Event.findByIdAndUpdate(id, body, { new: true });
 
         if (!event) {
             return NextResponse.json({ success: false, message: 'Event not found' }, { status: 404 });
@@ -30,16 +31,17 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "admin") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
-        const event = await Event.findByIdAndDelete(params.id);
+        const event = await Event.findByIdAndDelete(id);
 
         if (!event) {
             return NextResponse.json({ success: false, message: 'Event not found' }, { status: 404 });
