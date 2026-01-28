@@ -11,6 +11,7 @@ import {
   Settings
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getPlayers } from "@/lib/squad";
 import { getEvents } from "@/lib/events";
@@ -93,10 +94,13 @@ export default function Home() {
             className="text-center"
           >
             <div className="flex justify-center mb-12">
-              <img
+              <Image
                 src="https://erspattensen.de/wp-content/uploads/2023/02/ERS-1024x208.jpg"
                 alt="ERS Pattensen Logo"
+                width={400}
+                height={80}
                 className="h-24 w-auto object-contain brightness-0 invert"
+                priority
               />
             </div>
 

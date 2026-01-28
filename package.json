@@ -1,7 +1,7 @@
 {
   "name": "club-manager",
-  "version": "1.0.0",
-  "comment": "Final security patch and ESLint fix - Deployment Ready",
+  "version": "1.0.1",
+  "comment": "Ultimative build stabilization - Lint & Type fixes",
   "private": true,
   "scripts": {
     "dev": "next dev",

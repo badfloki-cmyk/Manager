@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
     ArrowLeft,
     Save,
-    Trash2,
     RotateCcw,
     LayoutDashboard,
     Users,

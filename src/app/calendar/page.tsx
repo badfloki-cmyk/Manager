@@ -8,11 +8,9 @@ import {
     MapPin,
     Clock,
     Users,
-    ArrowLeft,
-    ChevronLeft,
-    ChevronRight,
-    Trophy
+    ArrowLeft
 } from "lucide-react";
+import { useCallback } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getEvents, createEvent, Event } from "@/lib/events";
@@ -34,7 +32,7 @@ export default function CalendarPage() {
         team: "Both" as const,
     });
 
-    const loadEvents = async () => {
+    const loadEvents = useCallback(async () => {
         setIsLoading(true);
         try {
             const { events: fetchedEvents } = await getEvents(team === "Both" ? undefined : team);
@@ -44,11 +42,11 @@ export default function CalendarPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [team]);
 
     useEffect(() => {
         loadEvents();
-    }, [team]);
+    }, [loadEvents]);
 
     const handleAddEvent = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -97,7 +95,7 @@ export default function CalendarPage() {
                         {["Both", "1. Mannschaft", "2. Mannschaft"].map((t) => (
                             <button
                                 key={t}
-                                onClick={() => setTeam(t as any)}
+                                onClick={() => setTeam(t as "Both" | "1. Mannschaft" | "2. Mannschaft")}
                                 className={cn(
                                     "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
                                     team === t ? "bg-red-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
@@ -241,7 +239,7 @@ export default function CalendarPage() {
                                         <label className="text-xs font-bold text-slate-500 uppercase px-1">Typ</label>
                                         <select
                                             value={newEvent.type}
-                                            onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as any })}
+                                            onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as "Training" | "Match" | "Event" })}
                                             className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm"
                                         >
                                             <option value="Training">Training</option>
@@ -253,7 +251,7 @@ export default function CalendarPage() {
                                         <label className="text-xs font-bold text-slate-500 uppercase px-1">Team</label>
                                         <select
                                             value={newEvent.team}
-                                            onChange={(e) => setNewEvent({ ...newEvent, team: e.target.value as any })}
+                                            onChange={(e) => setNewEvent({ ...newEvent, team: e.target.value as "Both" | "1. Mannschaft" | "2. Mannschaft" })}
                                             className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm"
                                         >
                                             <option value="Both">Beide Teams</option>

@@ -4,16 +4,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Users,
-    Plus,
     Trash2,
     UserPlus,
     Search,
-    Filter,
-    ChevronRight,
-    TrendingUp,
-    MapPin,
     ArrowLeft
 } from "lucide-react";
+import { useCallback } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getPlayers, createPlayer, deletePlayer, Player } from "@/lib/squad";
@@ -36,7 +32,7 @@ export default function SquadPage() {
         role: "Regular" as const,
     });
 
-    const loadPlayers = async () => {
+    const loadPlayers = useCallback(async () => {
         setIsLoading(true);
         try {
             const { players: fetchedPlayers } = await getPlayers(team);
@@ -46,11 +42,11 @@ export default function SquadPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [team]);
 
     useEffect(() => {
         loadPlayers();
-    }, [team]);
+    }, [loadPlayers]);
 
     const handleAddPlayer = async (e: React.FormEvent) => {
         e.preventDefault();
