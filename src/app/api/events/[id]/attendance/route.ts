@@ -4,13 +4,14 @@ import Event from '@/models/Event';
 
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
         const { playerId, status } = await request.json();
 
-        const event = await Event.findById(params.id);
+        const event = await Event.findById(id);
         if (!event) {
             return NextResponse.json({ success: false, message: 'Event not found' }, { status: 404 });
         }
