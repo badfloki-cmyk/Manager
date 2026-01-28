@@ -16,6 +16,7 @@ export interface Player {
         assists: number;
         appearances: number;
     };
+    notes?: string[];
 }
 
 export const getPlayers = async (team?: string) => {

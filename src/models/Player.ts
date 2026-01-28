@@ -15,6 +15,7 @@ export interface IPlayer extends Document {
         assists: number;
         appearances: number;
     };
+    notes?: string[];
 }
 
 const PlayerSchema: Schema = new Schema(
@@ -33,6 +34,7 @@ const PlayerSchema: Schema = new Schema(
             assists: { type: Number, default: 0 },
             appearances: { type: Number, default: 0 },
         },
+        notes: { type: [String], default: [] },
     },
     { timestamps: true }
 );

@@ -8,7 +8,8 @@ import {
   Calendar as CalendarIcon,
   LayoutDashboard,
   MessageSquare,
-  Settings
+  Settings,
+  Activity
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -43,6 +44,13 @@ const features = [
     description: "Interne Nachrichten und Datei-Austausch für alle Teams.",
     icon: MessageSquare,
     href: "/messages",
+    color: "bg-brand/10 text-brand",
+  },
+  {
+    title: "Statistiken",
+    description: "Tore, Vorlagen und Einsätze aller Spieler verwalten.",
+    icon: Activity,
+    href: "/stats",
     color: "bg-brand/10 text-brand",
   },
   {

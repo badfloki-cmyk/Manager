@@ -201,58 +201,60 @@ export default function SquadPage() {
                 player.onBench ? "border-slate-100 opacity-75 shadow-sm" : "border-slate-100 shadow-xl shadow-slate-200/50"
             )}
         >
-            <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-xl font-black text-brand overflow-hidden relative border border-slate-100">
-                        {player.photoUrl ? (
-                            <Image
-                                src={player.photoUrl}
-                                alt={`${player.firstName} ${player.lastName}`}
-                                fill
-                                className="object-cover"
-                            />
-                        ) : (
-                            player.number
+            <Link href={`/squad/${player._id}`} className="block">
+                <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-xl font-black text-brand overflow-hidden relative border border-slate-100">
+                            {player.photoUrl ? (
+                                <Image
+                                    src={player.photoUrl}
+                                    alt={`${player.firstName} ${player.lastName}`}
+                                    fill
+                                    className="object-cover"
+                                />
+                            ) : (
+                                player.number
+                            )}
+                        </div>
+                        <div>
+                            <h3 className="font-black text-slate-900 text-lg leading-tight uppercase tracking-tight">
+                                {player.firstName} <br /> {player.lastName}
+                            </h3>
+                            <p className="text-brand text-[10px] uppercase tracking-[0.1em] font-black mt-1">
+                                {player.position}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2 items-end">
+                        <div className={cn(
+                            "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                            player.status === "Active" ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
+                        )}>
+                            {player.status}
+                        </div>
+                        {player.onBench && (
+                            <div className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-500">
+                                Bank
+                            </div>
                         )}
                     </div>
-                    <div>
-                        <h3 className="font-black text-slate-900 text-lg leading-tight uppercase tracking-tight">
-                            {player.firstName} <br /> {player.lastName}
-                        </h3>
-                        <p className="text-brand text-[10px] uppercase tracking-[0.1em] font-black mt-1">
-                            {player.position}
-                        </p>
-                    </div>
                 </div>
-                <div className="flex flex-col gap-2 items-end">
-                    <div className={cn(
-                        "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
-                        player.status === "Active" ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
-                    )}>
-                        {player.status}
-                    </div>
-                    {player.onBench && (
-                        <div className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-500">
-                            Bank
-                        </div>
-                    )}
-                </div>
-            </div>
 
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50">
-                <div className="text-center">
-                    <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Tore</p>
-                    <p className="font-black text-slate-900">{player.stats.goals}</p>
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50">
+                    <div className="text-center">
+                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Tore</p>
+                        <p className="font-black text-slate-900">{player.stats.goals}</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Assists</p>
+                        <p className="font-black text-slate-900">{player.stats.assists}</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Einsätze</p>
+                        <p className="font-black text-slate-900">{player.stats.appearances}</p>
+                    </div>
                 </div>
-                <div className="text-center">
-                    <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Assists</p>
-                    <p className="font-black text-slate-900">{player.stats.assists}</p>
-                </div>
-                <div className="text-center">
-                    <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Einsätze</p>
-                    <p className="font-black text-slate-900">{player.stats.appearances}</p>
-                </div>
-            </div>
+            </Link>
 
             {/* Action Buttons */}
             {isAdmin && (
