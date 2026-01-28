@@ -12,7 +12,8 @@ import {
     Upload,
     Armchair,
     ArrowUpFromLine,
-    ArrowDownToLine
+    ArrowDownToLine,
+    Pencil
 } from "lucide-react";
 import { useCallback, useRef } from "react";
 import React from "react";
@@ -30,6 +31,8 @@ export default function SquadPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showBench, setShowBench] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     // New Player Form State
     const [newPlayer, setNewPlayer] = useState<{
@@ -83,7 +86,7 @@ export default function SquadPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            let photoUrl = "";
+            let photoUrl = newPlayer.photoUrl || "";
             if (selectedFile) {
                 console.log("Starting upload for:", selectedFile.name);
                 const response = await fetch(`/api/upload?filename=${selectedFile.name}`, {
@@ -101,26 +104,58 @@ export default function SquadPage() {
                 photoUrl = blob.url;
             }
 
-            console.log("Creating player with data:", { ...newPlayer, photoUrl });
-            await createPlayer({
-                ...newPlayer,
-                number: parseInt(newPlayer.number || "0"),
-                team: team,
-                photoUrl: photoUrl,
-                onBench: false,
-                stats: { goals: 0, assists: 0, appearances: 0 }
-            });
+            console.log("Saving player with data:", { ...newPlayer, photoUrl });
+
+            if (isEditing && editingId) {
+                await updatePlayer(editingId, {
+                    ...newPlayer,
+                    number: parseInt(newPlayer.number || "0"),
+                    photoUrl: photoUrl
+                });
+            } else {
+                await createPlayer({
+                    ...newPlayer,
+                    number: parseInt(newPlayer.number || "0"),
+                    team: team,
+                    photoUrl: photoUrl,
+                    onBench: false,
+                    stats: { goals: 0, assists: 0, appearances: 0 }
+                });
+            }
+
             setIsModalOpen(false);
-            setNewPlayer({ firstName: "", lastName: "", number: "", position: "Sturm", status: "Active", role: "Regular", photoUrl: "" });
-            setSelectedFile(null);
-            setPreviewUrl(null);
+            resetForm();
             loadPlayers();
         } catch (error) {
-            console.error("Error creating player:", error);
-            alert("Fehler beim Erstellen des Spielers.");
+            console.error("Error saving player:", error);
+            alert("Fehler beim Speichern des Spielers.");
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const resetForm = () => {
+        setNewPlayer({ firstName: "", lastName: "", number: "", position: "Sturm", status: "Active", role: "Regular", photoUrl: "" });
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        setIsEditing(false);
+        setEditingId(null);
+    };
+
+    const handleEditPlayer = (player: Player) => {
+        setNewPlayer({
+            firstName: player.firstName,
+            lastName: player.lastName,
+            number: player.number.toString(),
+            position: player.position,
+            status: player.status,
+            role: player.role,
+            photoUrl: player.photoUrl
+        });
+        setPreviewUrl(player.photoUrl || null);
+        setIsEditing(true);
+        setEditingId(player._id);
+        setIsModalOpen(true);
     };
 
     const handleDeletePlayer = async (id: string) => {
@@ -239,8 +274,14 @@ export default function SquadPage() {
                         )}
                     </button>
                     <button
-                        onClick={() => handleDeletePlayer(player._id)}
+                        onClick={() => handleEditPlayer(player)}
                         className="p-2 bg-white border border-slate-100 shadow-sm hover:bg-brand hover:text-white rounded-xl transition-all"
+                    >
+                        <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handleDeletePlayer(player._id)}
+                        className="p-2 bg-white border border-slate-100 shadow-sm hover:bg-red-500 hover:text-white rounded-xl transition-all"
                     >
                         <Trash2 className="w-4 h-4" />
                     </button>
@@ -299,7 +340,7 @@ export default function SquadPage() {
                     </div>
                     {isAdmin && (
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => { resetForm(); setIsModalOpen(true); }}
                             className="w-full md:w-auto flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-[0.1em] transition-all active:scale-95 shadow-xl shadow-brand/20"
                         >
                             <UserPlus className="w-4 h-4" />
@@ -414,7 +455,7 @@ export default function SquadPage() {
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             className="relative w-full max-w-lg bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl"
                         >
-                            <h2 className="text-3xl font-black mb-8 text-brand tracking-tight">Neuer Spieler ({team})</h2>
+                            <h2 className="text-3xl font-black mb-8 text-brand tracking-tight">{isEditing ? "Spieler bearbeiten" : `Neuer Spieler (${team})`}</h2>
                             <form onSubmit={handleAddPlayer} className="space-y-6">
                                 {/* Photo Upload */}
                                 <div className="flex justify-center mb-8">

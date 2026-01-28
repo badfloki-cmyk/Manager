@@ -22,6 +22,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getPlayers, Player } from "@/lib/squad";
 import { getTactics, createTactic, deleteTactic, TacticData } from "@/lib/tactics";
+import { useSession } from "next-auth/react";
 
 type GameMode = "football" | "futsal";
 
@@ -57,6 +58,9 @@ export default function TacticsPage() {
     const [showLoadModal, setShowLoadModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [teamFilter, setTeamFilter] = useState<"All" | "1. Mannschaft" | "2. Mannschaft">("All");
+
+    const { data: session } = useSession();
+    const isAdmin = session?.user?.role === "admin";
 
     // Drawing Logic
     const [paths, setPaths] = useState<Path[]>([]);
@@ -237,13 +241,15 @@ export default function TacticsPage() {
                             <Download className="w-4 h-4" />
                         </button>
 
-                        <button
-                            onClick={() => setShowSaveModal(true)}
-                            className="px-6 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-brand/20"
-                        >
-                            <Save className="w-4 h-4" />
-                            Speichern
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setShowSaveModal(true)}
+                                className="px-6 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-brand/20"
+                            >
+                                <Save className="w-4 h-4" />
+                                Speichern
+                            </button>
+                        )}
                     </div>
                 </div>
             </header>
@@ -318,31 +324,38 @@ export default function TacticsPage() {
                         >
                             <LayoutDashboard className="w-5 h-5" />
                         </button>
-                        <button
-                            onClick={() => setIsDrawMode(true)}
-                            className={cn(
-                                "p-3 rounded-2xl transition-all",
-                                isDrawMode ? "bg-brand text-white shadow-lg" : "text-slate-400 hover:bg-slate-50"
-                            )}
-                            title="Zeichnen"
-                        >
-                            <Pencil className="w-5 h-5" />
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setIsDrawMode(true)}
+                                className={cn(
+                                    "p-3 rounded-2xl transition-all",
+                                    isDrawMode ? "bg-brand text-white shadow-lg" : "text-slate-400 hover:bg-slate-50"
+                                )}
+                                title="Zeichnen"
+                            >
+                                <Pencil className="w-5 h-5" />
+                            </button>
+                        )}
                         <div className="w-px bg-slate-100 mx-2" />
-                        <button
-                            onClick={() => setPaths([])}
-                            className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 transition-all hover:text-brand"
-                            title="Zeichnungen löschen"
-                        >
-                            <Eraser className="w-5 h-5" />
-                        </button>
-                        <button
-                            onClick={resetPitch}
-                            className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 transition-all hover:text-brand"
-                            title="Alles leeren"
-                        >
-                            <RotateCcw className="w-5 h-5" />
-                        </button>
+                        {/* Only admins clear drawings/pitch */}
+                        {isAdmin && (
+                            <>
+                                <button
+                                    onClick={() => setPaths([])}
+                                    className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 transition-all hover:text-brand"
+                                    title="Zeichnungen löschen"
+                                >
+                                    <Eraser className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={resetPitch}
+                                    className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 transition-all hover:text-brand"
+                                    title="Alles leeren"
+                                >
+                                    <RotateCcw className="w-5 h-5" />
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     <div
@@ -473,173 +486,228 @@ export default function TacticsPage() {
                     </div>
                 </div>
 
-                {/* Right Sidebar: Colors & Tactic Info */}
-                <aside className="w-64 border-l border-slate-100 bg-slate-50 p-8 space-y-10 hidden xl:block">
-                    {isDrawMode && (
-                        <div className="space-y-4">
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Farbe wählen</h3>
-                            <div className="grid grid-cols-3 gap-3">
-                                {["#ef4444", "#3b82f6", "#22c55e", "#eab308", "#ffffff", "#000000"].map(c => (
-                                    <button
-                                        key={c}
-                                        onClick={() => setDrawColor(c)}
-                                        className={cn(
-                                            "w-full aspect-square rounded-xl border-4 transition-all shadow-sm",
-                                            drawColor === c ? "border-brand scale-110 shadow-lg" : "border-white"
+                {/* Right Sidebar: Colors & Tactic Info / List */}
+                <aside className="w-80 border-l border-slate-100 bg-slate-50 flex flex-col hidden xl:flex">
+                    {/* Tactics List for non-admins or admins who want to see it */}
+                    <div className="flex-1 flex flex-col min-h-0">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                Gespeicherte Taktiken
+                            </h3>
+                            <button
+                                onClick={() => setShowLoadModal(true)}
+                                className="text-brand hover:text-brand-dark transition-colors"
+                            >
+                                <Download className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                            {savedTactics.map(t => (
+                                <div
+                                    key={t._id}
+                                    onClick={() => loadTactic(t)}
+                                    className="group relative bg-white border border-slate-100 rounded-2xl p-4 cursor-pointer hover:shadow-lg hover:shadow-brand/5 hover:border-brand/20 transition-all"
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className={cn(
+                                            "px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-wide",
+                                            t.mode === "futsal" ? "bg-orange-50 text-orange-500" : "bg-blue-50 text-blue-500"
+                                        )}>
+                                            {t.mode === "futsal" ? "Futsal" : "11v11"}
+                                        </span>
+                                        {isAdmin && (
+                                            <button
+                                                onClick={(e) => deleteSavedTactic(t._id!, e)}
+                                                className="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
                                         )}
-                                        style={{ backgroundColor: c }}
-                                    />
-                                ))}
+                                    </div>
+                                    <h4 className="font-bold text-slate-900 text-sm mb-1">{t.name}</h4>
+                                    <p className="text-[10px] text-slate-400 font-medium">
+                                        {new Date(t.createdAt!).toLocaleDateString('de-DE')}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {isDrawMode && isAdmin && (
+                        <div className="p-8 border-t border-slate-100 bg-white">
+                            <div className="space-y-4">
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Farbe wählen</h3>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {["#ef4444", "#3b82f6", "#22c55e", "#eab308", "#ffffff", "#000000"].map(c => (
+                                        <button
+                                            key={c}
+                                            onClick={() => setDrawColor(c)}
+                                            className={cn(
+                                                "w-full aspect-square rounded-xl border-4 transition-all shadow-sm",
+                                                drawColor === c ? "border-brand scale-110 shadow-lg" : "border-white"
+                                            )}
+                                            style={{ backgroundColor: c }}
+                                        />
+                                    ))}
+                                </div>
                             </div>
+                    )}
+
+                            <div className="space-y-4">
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Team Info</h3>
+                                <div className="space-y-4 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Auf Feld</span>
+                                        <span className="text-xl font-black text-brand tracking-tight">{playersOnPitch.length}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Torhüter</span>
+                                        <span className="text-xl font-black text-yellow-500 tracking-tight">
+                                            {playersOnPitch.filter(p => p.color === "bg-yellow-500").length}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     )}
 
-                    <div className="space-y-4">
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Team Info</h3>
-                        <div className="space-y-4 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50">
-                            <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Auf Feld</span>
-                                <span className="text-xl font-black text-brand tracking-tight">{playersOnPitch.length}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Torhüter</span>
-                                <span className="text-xl font-black text-yellow-500 tracking-tight">
-                                    {playersOnPitch.filter(p => p.color === "bg-yellow-500").length}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="pt-6 border-t border-slate-100">
+                    <div className="p-6 border-t border-slate-100 bg-slate-50">
                         <p className="text-[10px] text-slate-400 leading-relaxed italic font-medium">
-                            💡 Tipp: Ziehe Spieler aus der linken Liste aufs Feld. Aktiviere das Stift-Tool für Laufwege.
+                            {isAdmin
+                                ? "💡 Tipp: Zeichne Laufwege, speichere Formationen und verwalte Taktiken."
+                                : "💡 Info: Du kannst Taktiken ansehen und laden, aber nicht bearbeiten."}
                         </p>
                     </div>
                 </aside>
-            </main>
+            </main >
 
             {/* Modals */}
             <AnimatePresence>
-                {showSaveModal && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowSaveModal(false)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-md bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl"
-                        >
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-3xl font-black text-brand tracking-tight">Taktik speichern</h2>
-                                <button onClick={() => setShowSaveModal(false)} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400">
-                                    <X className="w-6 h-6" />
-                                </button>
-                            </div>
-                            <div className="space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Taktik-Name</label>
-                                    <input
-                                        autoFocus
-                                        type="text"
-                                        value={tacticName}
-                                        onChange={(e) => setTacticName(e.target.value)}
-                                        placeholder="z.B. Power-Play corner"
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
-                                    />
-                                </div>
-                                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-[10px] text-slate-400 font-black uppercase tracking-widest space-y-2 shadow-inner">
-                                    <p className="flex justify-between"><span>Modus</span> <span className="text-slate-900">{mode === "futsal" ? "Futsal" : "Fußball"}</span></p>
-                                    <p className="flex justify-between"><span>Spieler</span> <span className="text-slate-900">{playersOnPitch.length}</span></p>
-                                    <p className="flex justify-between"><span>Zeichnungen</span> <span className="text-slate-900">{paths.length > 0 ? "Ja" : "Nein"}</span></p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <button
-                                        disabled={isSaving || !tacticName}
-                                        onClick={handleSaveTactic}
-                                        className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand/20 active:scale-95"
-                                    >
-                                        {isSaving ? "Speichert..." : <><Check className="w-5 h-5" /> Speichern</>}
+                {
+                    showSaveModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowSaveModal(false)}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-md bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl"
+                            >
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="text-3xl font-black text-brand tracking-tight">Taktik speichern</h2>
+                                    <button onClick={() => setShowSaveModal(false)} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400">
+                                        <X className="w-6 h-6" />
                                     </button>
                                 </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-
-                {showLoadModal && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowLoadModal(false)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-xl bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl max-h-[80vh] flex flex-col"
-                        >
-                            <div className="flex items-center justify-between mb-8 flex-shrink-0">
-                                <h2 className="text-3xl font-black text-brand tracking-tight">Alle Taktiken</h2>
-                                <button onClick={() => setShowLoadModal(false)} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400">
-                                    <X className="w-6 h-6" />
-                                </button>
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-                                {savedTactics.length === 0 ? (
-                                    <div className="text-center py-16 text-slate-300">
-                                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                                            <Download className="w-8 h-8" />
-                                        </div>
-                                        <p className="font-black uppercase text-[10px] tracking-widest">Noch keine Taktiken gespeichert.</p>
+                                <div className="space-y-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Taktik-Name</label>
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            value={tacticName}
+                                            onChange={(e) => setTacticName(e.target.value)}
+                                            placeholder="z.B. Power-Play corner"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
+                                        />
                                     </div>
-                                ) : (
-                                    savedTactics.map(t => (
-                                        <div
-                                            key={t._id}
-                                            onClick={() => loadTactic(t)}
-                                            className="group flex items-center justify-between p-6 bg-white border border-slate-100 rounded-3xl hover:shadow-xl hover:shadow-brand/5 hover:border-brand/20 cursor-pointer transition-all shadow-sm"
+                                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-[10px] text-slate-400 font-black uppercase tracking-widest space-y-2 shadow-inner">
+                                        <p className="flex justify-between"><span>Modus</span> <span className="text-slate-900">{mode === "futsal" ? "Futsal" : "Fußball"}</span></p>
+                                        <p className="flex justify-between"><span>Spieler</span> <span className="text-slate-900">{playersOnPitch.length}</span></p>
+                                        <p className="flex justify-between"><span>Zeichnungen</span> <span className="text-slate-900">{paths.length > 0 ? "Ja" : "Nein"}</span></p>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <button
+                                            disabled={isSaving || !tacticName}
+                                            onClick={handleSaveTactic}
+                                            className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand/20 active:scale-95"
                                         >
-                                            <div className="flex items-center gap-6">
-                                                <div className={cn(
-                                                    "w-14 h-14 rounded-2xl flex items-center justify-center font-black text-[10px] p-2 text-center shadow-inner uppercase tracking-tighter",
-                                                    t.mode === "futsal" ? "bg-orange-50 text-orange-500" : "bg-blue-50 text-blue-500"
-                                                )}>
-                                                    {t.mode === "futsal" ? "Futsal" : "11v11"}
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-black text-slate-900 text-lg tracking-tight">{t.name}</h3>
-                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                                                        {t.players.length} Spieler • {new Date(t.createdAt!).toLocaleDateString('de-DE')}
-                                                    </p>
-                                                </div>
+                                            {isSaving ? "Speichert..." : <><Check className="w-5 h-5" /> Speichern</>}
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )
+                }
+
+                {
+                    showLoadModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowLoadModal(false)}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-xl bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl max-h-[80vh] flex flex-col"
+                            >
+                                <div className="flex items-center justify-between mb-8 flex-shrink-0">
+                                    <h2 className="text-3xl font-black text-brand tracking-tight">Alle Taktiken</h2>
+                                    <button onClick={() => setShowLoadModal(false)} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400">
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                                    {savedTactics.length === 0 ? (
+                                        <div className="text-center py-16 text-slate-300">
+                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                                                <Download className="w-8 h-8" />
                                             </div>
-                                            <div className="flex items-center gap-4">
-                                                <button
-                                                    onClick={(e) => deleteSavedTactic(t._id!, e)}
-                                                    className="p-3 bg-white border border-slate-100 shadow-sm hover:bg-brand hover:text-white rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <ChevronRight className="w-6 h-6 text-slate-200 group-hover:text-brand transition-colors" />
-                                            </div>
+                                            <p className="font-black uppercase text-[10px] tracking-widest">Noch keine Taktiken gespeichert.</p>
                                         </div>
-                                    ))
-                                )}
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                                    ) : (
+                                        savedTactics.map(t => (
+                                            <div
+                                                key={t._id}
+                                                onClick={() => loadTactic(t)}
+                                                className="group flex items-center justify-between p-6 bg-white border border-slate-100 rounded-3xl hover:shadow-xl hover:shadow-brand/5 hover:border-brand/20 cursor-pointer transition-all shadow-sm"
+                                            >
+                                                <div className="flex items-center gap-6">
+                                                    <div className={cn(
+                                                        "w-14 h-14 rounded-2xl flex items-center justify-center font-black text-[10px] p-2 text-center shadow-inner uppercase tracking-tighter",
+                                                        t.mode === "futsal" ? "bg-orange-50 text-orange-500" : "bg-blue-50 text-blue-500"
+                                                    )}>
+                                                        {t.mode === "futsal" ? "Futsal" : "11v11"}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-black text-slate-900 text-lg tracking-tight">{t.name}</h3>
+                                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                                                            {t.players.length} Spieler • {new Date(t.createdAt!).toLocaleDateString('de-DE')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-4">
+                                                    <button
+                                                        onClick={(e) => deleteSavedTactic(t._id!, e)}
+                                                        className="p-3 bg-white border border-slate-100 shadow-sm hover:bg-brand hover:text-white rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                    <ChevronRight className="w-6 h-6 text-slate-200 group-hover:text-brand transition-colors" />
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
 
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar {
@@ -656,6 +724,6 @@ export default function TacticsPage() {
                     background: #334155;
                 }
             `}</style>
-        </div>
+        </div >
     );
 }

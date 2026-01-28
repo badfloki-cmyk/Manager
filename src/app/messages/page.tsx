@@ -10,7 +10,9 @@ import {
     Users,
     Pin,
     Loader2,
-    Lock
+    Lock,
+    Trash2,
+    Pencil
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,7 +39,8 @@ export default function MessagesPage() {
     const [newMessage, setNewMessage] = useState("");
     const [messageType, setMessageType] = useState<"general" | "announcement">("general");
     const [messageTeam, setMessageTeam] = useState<"Alle" | "1. Mannschaft" | "2. Mannschaft">("Alle");
-    const [isSending, setIsSending] = useState(false);
+    const [isThinking, setIsThinking] = useState(false);
+    const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
     const fetchMessages = async () => {
         try {
@@ -56,11 +59,14 @@ export default function MessagesPage() {
     }, []);
 
     const handleSendMessage = async () => {
-        if (!newMessage || isSending) return;
-        setIsSending(true);
+        if (!newMessage || isThinking) return;
+        setIsThinking(true);
         try {
-            const res = await fetch("/api/messages", {
-                method: "POST",
+            const method = editingMessageId ? "PUT" : "POST";
+            const url = editingMessageId ? `/api/messages/${editingMessageId}` : "/api/messages";
+
+            const res = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     content: newMessage,
@@ -72,13 +78,37 @@ export default function MessagesPage() {
 
             if (res.ok) {
                 setNewMessage("");
+                setEditingMessageId(null);
                 fetchMessages();
             }
         } catch {
-            console.error("Send error");
+            console.error("Operation error");
         } finally {
-            setIsSending(false);
+            setIsThinking(false);
         }
+    };
+
+    const handleDeleteMessage = async (id: string) => {
+        if (!confirm("Nachricht wirklich löschen?")) return;
+        try {
+            const res = await fetch(`/api/messages/${id}`, { method: "DELETE" });
+            if (res.ok) fetchMessages();
+        } catch {
+            console.error("Delete error");
+        }
+    };
+
+    const startEditing = (msg: Message) => {
+        setNewMessage(msg.content);
+        setMessageType(msg.type);
+        setMessageTeam(msg.team || "Alle");
+        setEditingMessageId(msg._id);
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    };
+
+    const cancelEditing = () => {
+        setNewMessage("");
+        setEditingMessageId(null);
     };
 
     const filteredMessages = filter === "all"
@@ -207,6 +237,17 @@ export default function MessagesPage() {
                                         </div>
                                     </div>
                                     <p className="text-slate-600 leading-relaxed font-medium">{message.content}</p>
+
+                                    {isAdmin && (
+                                        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-50">
+                                            <button onClick={() => startEditing(message)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-brand transition-all">
+                                                <Pencil className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => handleDeleteMessage(message._id)} className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-500 transition-all">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </motion.div>
                             ))}
                         </AnimatePresence>
@@ -214,56 +255,63 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Compose Box */}
-                {isAdmin ? (
-                    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50 relative">
-                        <div className="space-y-6">
-                            <div className="flex gap-4 mb-4">
-                                <select
-                                    value={messageType}
-                                    onChange={(e) => setMessageType(e.target.value as "general" | "announcement")}
-                                    className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest"
-                                >
-                                    <option value="general">Allgemein</option>
-                                    <option value="announcement">Wichtig (Pin)</option>
-                                </select>
-                                <select
-                                    value={messageTeam}
-                                    onChange={(e) => setMessageTeam(e.target.value as "Alle" | "1. Mannschaft" | "2. Mannschaft")}
-                                    className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest"
-                                >
-                                    <option value="Alle">Alle Teams</option>
-                                    <option value="1. Mannschaft">1. Mannschaft</option>
-                                    <option value="2. Mannschaft">2. Mannschaft</option>
-                                </select>
-                            </div>
-                            <div className="flex gap-6">
-                                <textarea
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    placeholder="Nachricht schreiben..."
-                                    rows={1}
-                                    className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-brand/30 focus:bg-white transition-all font-medium shadow-inner placeholder:text-slate-300 resize-none min-h-[56px]"
-                                />
-                                <button
-                                    className="px-10 py-4 bg-brand hover:bg-brand-dark text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 flex items-center gap-3 shadow-xl shadow-brand/20 disabled:opacity-50"
-                                    onClick={handleSendMessage}
-                                    disabled={!newMessage || isSending}
-                                >
-                                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                    Senden
-                                </button>
+                {
+                    isAdmin ? (
+                        <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50 relative">
+                            <div className="space-y-6">
+                                <div className="flex gap-4 mb-4">
+                                    <select
+                                        value={messageType}
+                                        onChange={(e) => setMessageType(e.target.value as "general" | "announcement")}
+                                        className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest"
+                                    >
+                                        <option value="general">Allgemein</option>
+                                        <option value="announcement">Wichtig (Pin)</option>
+                                    </select>
+                                    <select
+                                        value={messageTeam}
+                                        onChange={(e) => setMessageTeam(e.target.value as "Alle" | "1. Mannschaft" | "2. Mannschaft")}
+                                        className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest"
+                                    >
+                                        <option value="Alle">Alle Teams</option>
+                                        <option value="1. Mannschaft">1. Mannschaft</option>
+                                        <option value="2. Mannschaft">2. Mannschaft</option>
+                                    </select>
+                                </div>
+                                <div className="flex gap-6">
+                                    <textarea
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        placeholder="Nachricht schreiben..."
+                                        rows={1}
+                                        className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-brand/30 focus:bg-white transition-all font-medium shadow-inner placeholder:text-slate-300 resize-none min-h-[56px]"
+                                    />
+                                    <button
+                                        className="px-10 py-4 bg-brand hover:bg-brand-dark text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 flex items-center gap-3 shadow-xl shadow-brand/20 disabled:opacity-50"
+                                        onClick={handleSendMessage}
+                                        disabled={!newMessage || isSending}
+                                    >
+                                        {isThinking ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingMessageId ? <Pencil className="w-4 h-4" /> : <Send className="w-4 h-4" />)}
+                                        {editingMessageId ? "Aktualisieren" : "Senden"}
+                                    </button>
+                                    {editingMessageId && (
+                                        <button onClick={cancelEditing} className="px-6 py-4 border border-slate-100 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-50 transition-all text-slate-400">
+                                            Abbrechen
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="bg-slate-50 border border-slate-100 border-dashed rounded-[2.5rem] p-10 text-center">
-                        <Lock className="w-8 h-8 text-slate-200 mx-auto mb-4" />
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                            Nur Admins können Nachrichten verfassen.
-                        </p>
-                    </div>
-                )}
-            </main>
-        </div>
+                    ) : (
+                        <div className="bg-slate-50 border border-slate-100 border-dashed rounded-[2.5rem] p-10 text-center">
+                            <Lock className="w-8 h-8 text-slate-200 mx-auto mb-4" />
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                                Nur Admins können Nachrichten verfassen.
+                            </p>
+                        </div>
+                    )
+                }
+            </main >
+        </div >
     );
 }
