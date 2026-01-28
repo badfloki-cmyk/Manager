@@ -31,6 +31,7 @@ interface PlayerPos {
     x: number;
     y: number;
     color: string;
+    photoUrl?: string;
 }
 
 interface Path {
@@ -165,7 +166,8 @@ export default function TacticsPage() {
             number: player.number,
             x: 50,
             y: 50,
-            color: player.position === "Torwart" ? "bg-yellow-500" : "bg-red-600"
+            color: player.position === "Torwart" ? "bg-yellow-500" : "bg-red-600",
+            photoUrl: player.photoUrl
         };
         setPlayersOnPitch(prev => [...prev, newPlayer]);
     };
@@ -403,7 +405,7 @@ export default function TacticsPage() {
                                     dragMomentum={false}
                                     initial={{ left: `${player.x}%`, top: `${player.y}%` }}
                                     className={cn(
-                                        "absolute w-12 h-12 -ml-6 -mt-6 rounded-full border-2 border-white flex flex-col items-center justify-center shadow-xl select-none z-30 transition-transform",
+                                        "absolute w-12 h-12 -ml-6 -mt-6 rounded-full border-2 border-white flex flex-col items-center justify-center shadow-xl select-none z-30 transition-transform overflow-visible",
                                         !isDrawMode ? "cursor-grab active:cursor-grabbing hover:scale-110" : "cursor-default",
                                         player.color
                                     )}
@@ -416,8 +418,24 @@ export default function TacticsPage() {
                                         ));
                                     }}
                                 >
-                                    <span className="text-[10px] font-black leading-none">{player.number}</span>
-                                    <span className="text-[8px] font-bold truncate max-w-[40px] leading-tight">{player.name}</span>
+                                    {player.photoUrl ? (
+                                        <div className="w-full h-full rounded-full overflow-hidden">
+                                            <img
+                                                src={player.photoUrl}
+                                                alt={player.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span className="text-[10px] font-black leading-none">{player.number}</span>
+                                            <span className="text-[8px] font-bold truncate max-w-[40px] leading-tight">{player.name}</span>
+                                        </>
+                                    )}
+
+                                    <div className="absolute top-14 whitespace-nowrap bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-[8px] font-bold text-white border border-white/20">
+                                        {player.name}
+                                    </div>
 
                                     {/* Delete indicator */}
                                     {!isDrawMode && (

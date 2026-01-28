@@ -12,6 +12,7 @@ export interface TacticData {
         x: number;
         y: number;
         color: string;
+        photoUrl?: string;
     }[];
     drawingData?: string;
     createdAt?: string;

@@ -11,6 +11,7 @@ export interface ITactic extends Document {
         x: number;
         y: number;
         color: string;
+        photoUrl?: string;
     }[];
     drawingData?: string; // SVG path or JSON string for lines
 }
@@ -28,6 +29,7 @@ const TacticSchema: Schema = new Schema(
                 x: { type: Number, required: true },
                 y: { type: Number, required: true },
                 color: { type: String, required: true },
+                photoUrl: { type: String },
             }
         ],
         drawingData: { type: String },
