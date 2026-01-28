@@ -7,6 +7,9 @@ export interface IEvent extends Document {
     date: string;
     location: string;
     team: '1. Mannschaft' | '2. Mannschaft' | 'Both';
+    meetingPoint?: string;
+    meetingTime?: string;
+    notes?: string;
     attendance: {
         player: mongoose.Types.ObjectId;
         status: 'Confirmed' | 'Declined' | 'Pending';
@@ -20,6 +23,9 @@ const EventSchema: Schema = new Schema(
         type: { type: String, enum: ['Training', 'Match', 'Event'], required: true },
         date: { type: String, required: true },
         location: { type: String, required: true },
+        meetingPoint: { type: String },
+        meetingTime: { type: String },
+        notes: { type: String },
         team: { type: String, enum: ['1. Mannschaft', '2. Mannschaft', 'Both'], required: true },
         attendance: [
             {

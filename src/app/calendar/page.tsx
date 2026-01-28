@@ -30,6 +30,9 @@ export default function CalendarPage() {
         type: "Training" | "Match" | "Event";
         date: string;
         location: string;
+        meetingPoint: string;
+        meetingTime: string;
+        notes: string;
         team: "1. Mannschaft" | "2. Mannschaft" | "Both";
     }>({
         title: "",
@@ -37,6 +40,9 @@ export default function CalendarPage() {
         type: "Training",
         date: "",
         location: "KGS Pattensen",
+        meetingPoint: "",
+        meetingTime: "",
+        notes: "",
         team: "Both",
     });
 
@@ -68,6 +74,9 @@ export default function CalendarPage() {
                 type: "Training",
                 date: "",
                 location: "KGS Pattensen",
+                meetingPoint: "",
+                meetingTime: "",
+                notes: "",
                 team: "Both",
             });
             loadEvents();
@@ -89,25 +98,25 @@ export default function CalendarPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white">
+        <div className="min-h-screen bg-white text-slate-900">
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+            <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
                 <div className="mx-auto max-w-7xl px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                        <Link href="/" className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+                        <Link href="/" className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-900">
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
-                        <Image src="/logo.jpg" alt="Logo" width={100} height={25} className="h-6 w-auto object-contain rounded" />
-                        <h1 className="text-2xl font-bold">Terminkalender</h1>
+                        <Image src="/logo.jpg" alt="Logo" width={100} height={25} className="h-8 w-auto object-contain rounded shadow-sm" />
+                        <h1 className="text-2xl font-black text-brand tracking-tight">Terminkalender</h1>
                     </div>
-                    <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-800">
+                    <div className="flex bg-slate-50 rounded-xl p-1 border border-slate-100 shadow-inner">
                         {["Both", "1. Mannschaft", "2. Mannschaft"].map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setTeam(t as "Both" | "1. Mannschaft" | "2. Mannschaft")}
                                 className={cn(
-                                    "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
-                                    team === t ? "bg-brand-dark text-white shadow-lg" : "text-slate-400 hover:text-white"
+                                    "px-6 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all",
+                                    team === t ? "bg-brand text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
                                 )}
                             >
                                 {t === "Both" ? "Alle" : t}
@@ -139,68 +148,112 @@ export default function CalendarPage() {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        <AnimatePresence mode="popLayout">
-                            {events.map((event, index) => (
-                                <motion.div
-                                    key={event._id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                                    className="group relative flex gap-6 bg-slate-900/40 border border-slate-800 p-6 rounded-3xl hover:bg-slate-800/40 transition-all overflow-hidden"
-                                >
-                                    {/* Left: Date Box */}
-                                    <div className="flex-shrink-0 w-20 h-24 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-center">
-                                        <span className="text-xs font-bold text-red-500 uppercase tracking-widest">
-                                            {new Date(event.date).toLocaleDateString('de-DE', { month: 'short' })}
-                                        </span>
-                                        <span className="text-3xl font-black mt-1">
-                                            {new Date(event.date).getDate()}
-                                        </span>
-                                        <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">
-                                            {new Date(event.date).toLocaleDateString('de-DE', { weekday: 'short' })}
-                                        </span>
-                                    </div>
+                    <div className="space-y-12">
+                        {Array.from(new Set(events.map(e => {
+                            const d = new Date(e.date);
+                            return `${d.toLocaleString('de-DE', { month: 'long' })} ${d.getFullYear()}`;
+                        }))).map(monthGroup => (
+                            <div key={monthGroup} className="space-y-6">
+                                <h3 className="text-sm font-black text-slate-300 uppercase tracking-[0.2em] flex items-center gap-4">
+                                    <span className="bg-slate-100 h-px flex-1" />
+                                    {monthGroup}
+                                    <span className="bg-slate-100 h-px flex-1" />
+                                </h3>
+                                <div className="space-y-6">
+                                    <AnimatePresence mode="popLayout">
+                                        {events
+                                            .filter(e => {
+                                                const d = new Date(e.date);
+                                                return `${d.toLocaleString('de-DE', { month: 'long' })} ${d.getFullYear()}` === monthGroup;
+                                            })
+                                            .map((event, index) => (
+                                                <motion.div
+                                                    key={event._id}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                                    className="group relative flex gap-6 bg-white border border-slate-100 p-8 rounded-[2rem] shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-brand/5 hover:border-brand/20 transition-all"
+                                                >
+                                                    {/* Left: Date Box */}
+                                                    <div className="flex-shrink-0 w-20 h-24 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center shadow-inner">
+                                                        <span className="text-xs font-black text-brand uppercase tracking-widest">
+                                                            {new Date(event.date).toLocaleDateString('de-DE', { month: 'short' })}
+                                                        </span>
+                                                        <span className="text-4xl font-black mt-1 text-slate-900 tracking-tighter">
+                                                            {new Date(event.date).getDate()}
+                                                        </span>
+                                                        <span className="text-[10px] text-slate-400 font-black uppercase mt-1">
+                                                            {new Date(event.date).toLocaleDateString('de-DE', { weekday: 'short' })}
+                                                        </span>
+                                                    </div>
 
-                                    {/* Right: Info */}
-                                    <div className="flex-1">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex items-center gap-3">
-                                                <span className={cn(
-                                                    "px-2 py-0.5 rounded text-[10px] font-bold ring-1 ring-inset",
-                                                    getTypeStyles(event.type)
-                                                )}>
-                                                    {event.type}
-                                                </span>
-                                                <h3 className="text-xl font-bold">{event.title}</h3>
-                                            </div>
-                                        </div>
+                                                    {/* Right: Info */}
+                                                    <div className="flex-1">
+                                                        <div className="flex items-start justify-between mb-3">
+                                                            <div className="flex items-center gap-3">
+                                                                <span className={cn(
+                                                                    "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ring-1 ring-inset",
+                                                                    getTypeStyles(event.type)
+                                                                )}>
+                                                                    {event.type}
+                                                                </span>
+                                                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">{event.title}</h3>
+                                                            </div>
+                                                        </div>
 
-                                        <p className="text-slate-400 text-sm mb-4 line-clamp-1">
-                                            {event.description || "Keine Beschreibung vorhanden."}
-                                        </p>
+                                                        <p className="text-slate-500 text-sm mb-6 line-clamp-1 group-hover:line-clamp-none transition-all font-medium leading-relaxed">
+                                                            {event.description || "Keine Beschreibung vorhanden."}
+                                                        </p>
 
-                                        <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-500">
-                                            <div className="flex items-center gap-1.5">
-                                                <Clock className="w-3.5 h-3.5 text-red-500" />
-                                                {new Date(event.date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
-                                            </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <MapPin className="w-3.5 h-3.5 text-red-500" />
-                                                {event.location}
-                                            </div>
-                                            <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-md border border-slate-800">
-                                                <Users className="w-3.5 h-3.5 text-red-500" />
-                                                {event.team}
-                                            </div>
-                                        </div>
-                                    </div>
+                                                        <div className="flex flex-wrap gap-6 text-xs font-black uppercase tracking-wider text-slate-400">
+                                                            <div className="flex items-center gap-2">
+                                                                <Clock className="w-4 h-4 text-brand" />
+                                                                <span className="text-slate-600 font-bold tracking-tight lowercase">{new Date(event.date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} uhr</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <MapPin className="w-4 h-4 text-brand" />
+                                                                <span className="text-slate-600 font-bold tracking-tight">{event.location}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 shadow-inner">
+                                                                <Users className="w-4 h-4 text-brand" />
+                                                                <span className="text-brand font-black text-[10px]">{event.team}</span>
+                                                            </div>
+                                                        </div>
 
-                                    {/* Decorative Gradient */}
-                                    <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-red-500/5 to-transparent pointer-events-none" />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
+                                                        {/* Hover Details */}
+                                                        <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-60 group-hover:opacity-100 transition-all duration-500 ease-in-out">
+                                                            <div className="pt-6 mt-6 border-t border-slate-50 grid grid-cols-2 gap-8">
+                                                                {(event.meetingTime || event.meetingPoint) && (
+                                                                    <div className="space-y-3">
+                                                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Treffpunkt</p>
+                                                                        <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                                                                            <Clock className="w-4 h-4 text-brand/50" />
+                                                                            <span>{event.meetingTime ? `${event.meetingTime} Uhr` : "Keine Zeit"}</span>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                                                                            <MapPin className="w-4 h-4 text-brand/50" />
+                                                                            <span>{event.meetingPoint || "Kein Ort"}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                {event.notes && (
+                                                                    <div className="space-y-3">
+                                                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Notizen</p>
+                                                                        <p className="text-sm text-slate-500 italic leading-relaxed font-medium">"{event.notes}"</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Decorative Gradient */}
+                                                    <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-brand/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </motion.div>
+                                            ))}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+                        ))}
 
                         {events.length === 0 && (
                             <div className="py-20 text-center border-2 border-dashed border-slate-800 rounded-3xl">
@@ -227,41 +280,41 @@ export default function CalendarPage() {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl"
+                            className="relative w-full max-w-lg bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl"
                         >
-                            <h2 className="text-2xl font-bold mb-6 italic">Neuer Termin</h2>
-                            <form onSubmit={handleAddEvent} className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-500 uppercase px-1">Titel</label>
+                            <h2 className="text-3xl font-black mb-8 text-brand tracking-tight">Neuer Termin</h2>
+                            <form onSubmit={handleAddEvent} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Titel</label>
                                     <input
                                         required
                                         type="text"
                                         placeholder="Spielfreies Training / Auswärtsspiel..."
                                         value={newEvent.title}
                                         onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Typ</label>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Typ</label>
                                         <select
                                             value={newEvent.type}
                                             onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as "Training" | "Match" | "Event" })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option value="Training">Training</option>
                                             <option value="Match">Spiel</option>
                                             <option value="Event">Event</option>
                                         </select>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Team</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Team</label>
                                         <select
                                             value={newEvent.team}
                                             onChange={(e) => setNewEvent({ ...newEvent, team: e.target.value as "Both" | "1. Mannschaft" | "2. Mannschaft" })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option value="Both">Beide Teams</option>
                                             <option value="1. Mannschaft">1. Mannschaft</option>
@@ -270,40 +323,61 @@ export default function CalendarPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-500 uppercase px-1">Datum & Uhrzeit</label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Datum & Uhrzeit</label>
                                     <input
                                         required
                                         type="datetime-local"
                                         value={newEvent.date}
                                         onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm color-white"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                     />
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-500 uppercase px-1">Ort</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        value={newEvent.location}
-                                        onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500/50 transition-colors text-sm"
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Treffpunkt Ort</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Parkplatz..."
+                                            value={newEvent.meetingPoint}
+                                            onChange={(e) => setNewEvent({ ...newEvent, meetingPoint: e.target.value })}
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Treffpunkt Zeit</label>
+                                        <input
+                                            type="time"
+                                            value={newEvent.meetingTime}
+                                            onChange={(e) => setNewEvent({ ...newEvent, meetingTime: e.target.value })}
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Notizen</label>
+                                    <textarea
+                                        placeholder="Zusätzliche Infos..."
+                                        value={newEvent.notes}
+                                        onChange={(e) => setNewEvent({ ...newEvent, notes: e.target.value })}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium h-24 resize-none shadow-inner"
                                     />
                                 </div>
 
-                                <div className="flex gap-4 pt-6">
+                                <div className="flex gap-4 pt-8">
                                     <button
                                         type="button"
                                         onClick={() => setIsModalOpen(false)}
-                                        className="flex-1 px-6 py-3 rounded-xl border border-slate-800 hover:bg-slate-800 transition-colors font-medium text-sm text-slate-400"
+                                        className="flex-1 px-8 py-3.5 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-all font-black uppercase text-xs tracking-widest text-slate-400"
                                     >
                                         Abbrechen
                                     </button>
                                     <button
                                         disabled={isSubmitting}
                                         type="submit"
-                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium transition-all active:scale-95 shadow-lg shadow-red-600/10 text-sm disabled:opacity-50"
+                                        className="flex-1 bg-brand hover:bg-brand-dark text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 shadow-xl shadow-brand/20 disabled:opacity-50"
                                     >
                                         {isSubmitting ? "Wird erstellt..." : "Termin anlegen"}
                                     </button>

@@ -7,6 +7,9 @@ export interface Event {
     type: 'Training' | 'Match' | 'Event';
     date: string;
     location: string;
+    meetingPoint?: string;
+    meetingTime?: string;
+    notes?: string;
     team: '1. Mannschaft' | '2. Mannschaft' | 'Both';
     attendance: {
         player: string;

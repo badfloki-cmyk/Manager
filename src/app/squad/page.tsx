@@ -158,13 +158,13 @@ export default function SquadPage() {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2, delay: index * 0.05 }}
             className={cn(
-                "group relative bg-slate-900/40 border p-6 rounded-2xl hover:bg-slate-800/40 transition-all",
-                player.onBench ? "border-slate-700/50 opacity-75" : "border-slate-800 hover:border-red-500/30"
+                "group relative bg-white border p-6 rounded-3xl hover:shadow-2xl hover:shadow-brand/5 hover:border-brand/20 transition-all",
+                player.onBench ? "border-slate-100 opacity-75 shadow-sm" : "border-slate-100 shadow-xl shadow-slate-200/50"
             )}
         >
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-slate-800 flex items-center justify-center text-xl font-bold text-brand overflow-hidden relative border border-slate-700">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-xl font-black text-brand overflow-hidden relative border border-slate-100">
                         {player.photoUrl ? (
                             <Image
                                 src={player.photoUrl}
@@ -177,41 +177,41 @@ export default function SquadPage() {
                         )}
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg leading-snug">
+                        <h3 className="font-black text-slate-900 text-lg leading-tight uppercase tracking-tight">
                             {player.firstName} <br /> {player.lastName}
                         </h3>
-                        <p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
+                        <p className="text-brand text-[10px] uppercase tracking-[0.1em] font-black mt-1">
                             {player.position}
                         </p>
                     </div>
                 </div>
                 <div className="flex flex-col gap-2 items-end">
                     <div className={cn(
-                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter",
-                        player.status === "Active" ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500"
+                        "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                        player.status === "Active" ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
                     )}>
                         {player.status}
                     </div>
                     {player.onBench && (
-                        <div className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter bg-slate-700 text-slate-400">
+                        <div className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-500">
                             Bank
                         </div>
                     )}
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800/50">
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50">
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-0.5">Tore</p>
-                    <p className="font-bold">{player.stats.goals}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Tore</p>
+                    <p className="font-black text-slate-900">{player.stats.goals}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-0.5">Assists</p>
-                    <p className="font-bold">{player.stats.assists}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Assists</p>
+                    <p className="font-black text-slate-900">{player.stats.assists}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-0.5">Einsätze</p>
-                    <p className="font-bold">{player.stats.appearances}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Einsätze</p>
+                    <p className="font-black text-slate-900">{player.stats.appearances}</p>
                 </div>
             </div>
 
@@ -220,10 +220,10 @@ export default function SquadPage() {
                 <button
                     onClick={() => toggleBench(player)}
                     className={cn(
-                        "p-2 rounded-lg transition-all",
+                        "p-2 rounded-xl transition-all shadow-sm border border-slate-100 bg-white",
                         player.onBench
-                            ? "hover:bg-emerald-500/10 hover:text-emerald-500"
-                            : "hover:bg-orange-500/10 hover:text-orange-500"
+                            ? "hover:bg-emerald-50 hover:text-emerald-600"
+                            : "hover:bg-orange-50 hover:text-orange-600"
                     )}
                     title={player.onBench ? "Auf Feld setzen" : "Auf Bank setzen"}
                 >
@@ -235,7 +235,7 @@ export default function SquadPage() {
                 </button>
                 <button
                     onClick={() => handleDeletePlayer(player._id)}
-                    className="p-2 hover:bg-brand/10 hover:text-brand rounded-lg transition-all"
+                    className="p-2 bg-white border border-slate-100 shadow-sm hover:bg-brand hover:text-white rounded-xl transition-all"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
@@ -244,23 +244,23 @@ export default function SquadPage() {
     );
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white">
+        <div className="min-h-screen bg-white text-slate-900">
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+            <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
                 <div className="mx-auto max-w-7xl px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                        <Link href="/" className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+                        <Link href="/" className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-900">
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
-                        <Image src="/logo.jpg" alt="Logo" width={100} height={25} className="h-6 w-auto object-contain rounded" />
-                        <h1 className="text-2xl font-bold">Kaderverwaltung</h1>
+                        <Image src="/logo.jpg" alt="Logo" width={100} height={25} className="h-8 w-auto object-contain rounded shadow-sm" />
+                        <h1 className="text-2xl font-black text-brand tracking-tight">Kaderverwaltung</h1>
                     </div>
-                    <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-800">
+                    <div className="flex bg-slate-50 rounded-xl p-1 border border-slate-100 shadow-inner">
                         <button
                             onClick={() => setTeam("1. Mannschaft")}
                             className={cn(
-                                "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
-                                team === "1. Mannschaft" ? "bg-brand-dark text-white shadow-lg" : "text-slate-400 hover:text-white"
+                                "px-6 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all",
+                                team === "1. Mannschaft" ? "bg-brand text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
                             )}
                         >
                             1. Mannschaft
@@ -268,8 +268,8 @@ export default function SquadPage() {
                         <button
                             onClick={() => setTeam("2. Mannschaft")}
                             className={cn(
-                                "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
-                                team === "2. Mannschaft" ? "bg-brand-dark text-white shadow-lg" : "text-slate-400 hover:text-white"
+                                "px-6 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all",
+                                team === "2. Mannschaft" ? "bg-brand text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
                             )}
                         >
                             2. Mannschaft
@@ -280,20 +280,20 @@ export default function SquadPage() {
 
             <main className="mx-auto max-w-7xl px-6 py-12">
                 {/* Actions Bar */}
-                <div className="flex flex-col md:flex-row gap-4 mb-10 items-center justify-between">
+                <div className="flex flex-col md:flex-row gap-6 mb-12 items-center justify-between">
                     <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
                             placeholder="Spieler suchen (Name, Position...)"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-brand/50 transition-colors"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-6 text-sm focus:outline-none focus:border-brand/30 focus:bg-white transition-all shadow-inner font-medium"
                         />
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="w-full md:w-auto flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white px-6 py-2.5 rounded-xl font-medium transition-all active:scale-95 shadow-lg shadow-brand/10"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-[0.1em] transition-all active:scale-95 shadow-xl shadow-brand/20"
                     >
                         <UserPlus className="w-4 h-4" />
                         Neuer Spieler
@@ -301,22 +301,22 @@ export default function SquadPage() {
                 </div>
 
                 {/* Stats Summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                    <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                        <p className="text-slate-500 text-sm mb-1">Gesamter Kader</p>
-                        <h3 className="text-2xl font-bold">{players.length} Spieler</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    <div className="bg-white border border-slate-100 p-8 rounded-3xl shadow-xl shadow-slate-200/40">
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Gesamter Kader</p>
+                        <h3 className="text-3xl font-black text-slate-900 tracking-tight">{players.length} Spieler</h3>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                        <p className="text-slate-500 text-sm mb-1">Aktive Spieler</p>
-                        <h3 className="text-2xl font-bold text-emerald-400">{activePlayers.length}</h3>
+                    <div className="bg-white border border-slate-100 p-8 rounded-3xl shadow-xl shadow-slate-200/40">
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Aktive Spieler</p>
+                        <h3 className="text-3xl font-black text-emerald-500 tracking-tight">{activePlayers.length}</h3>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                        <p className="text-slate-500 text-sm mb-1">Auf Bank</p>
-                        <h3 className="text-2xl font-bold text-orange-400">{benchPlayers.length}</h3>
+                    <div className="bg-white border border-slate-100 p-8 rounded-3xl shadow-xl shadow-slate-200/40">
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Auf Bank</p>
+                        <h3 className="text-3xl font-black text-orange-500 tracking-tight">{benchPlayers.length}</h3>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                        <p className="text-slate-500 text-sm mb-1">Verfügbarkeit</p>
-                        <h3 className="text-2xl font-bold text-emerald-400">Bereit</h3>
+                    <div className="bg-white border border-slate-100 p-8 rounded-3xl shadow-xl shadow-slate-200/40">
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Verfügbarkeit</p>
+                        <h3 className="text-3xl font-black text-emerald-500 tracking-tight">Bereit</h3>
                     </div>
                 </div>
 
@@ -352,13 +352,13 @@ export default function SquadPage() {
                         <div>
                             <button
                                 onClick={() => setShowBench(!showBench)}
-                                className="w-full flex items-center justify-between p-4 bg-slate-900/50 border border-slate-800 rounded-2xl mb-4 hover:bg-slate-800/50 transition-colors"
+                                className="w-full flex items-center justify-between p-6 bg-slate-50 border border-slate-100 rounded-3xl mb-8 hover:bg-slate-100 transition-all font-black text-slate-900 shadow-inner"
                             >
-                                <h2 className="text-lg font-bold flex items-center gap-2">
-                                    <Armchair className="w-5 h-5 text-orange-500" />
+                                <h2 className="text-xl font-black flex items-center gap-3">
+                                    <Armchair className="w-6 h-6 text-orange-500" />
                                     Wechselbank ({benchPlayers.length})
                                 </h2>
-                                <span className="text-slate-500 text-sm">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-400">
                                     {showBench ? "Ausblenden" : "Anzeigen"}
                                 </span>
                             </button>
@@ -404,26 +404,26 @@ export default function SquadPage() {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl"
+                            className="relative w-full max-w-lg bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl"
                         >
-                            <h2 className="text-2xl font-bold mb-6">Neuer Spieler ({team})</h2>
+                            <h2 className="text-3xl font-black mb-8 text-brand tracking-tight">Neuer Spieler ({team})</h2>
                             <form onSubmit={handleAddPlayer} className="space-y-6">
                                 {/* Photo Upload */}
-                                <div className="flex justify-center">
+                                <div className="flex justify-center mb-8">
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="relative w-24 h-24 rounded-2xl bg-slate-950 border-2 border-dashed border-slate-800 hover:border-brand/50 transition-all cursor-pointer group flex items-center justify-center overflow-hidden"
+                                        className="relative w-28 h-28 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 hover:border-brand/50 transition-all cursor-pointer group flex items-center justify-center overflow-hidden shadow-inner"
                                     >
                                         {previewUrl ? (
                                             <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                                         ) : (
                                             <div className="text-center group-hover:scale-110 transition-transform">
-                                                <Camera className="w-6 h-6 text-slate-600 mx-auto mb-1" />
-                                                <span className="text-[10px] font-bold text-slate-500 uppercase">Foto</span>
+                                                <Camera className="w-7 h-7 text-slate-300 mx-auto mb-2" />
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Foto</span>
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                            <Upload className="w-5 h-5 text-white" />
+                                        <div className="absolute inset-0 bg-brand/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[2px]">
+                                            <Upload className="w-6 h-6 text-white" />
                                         </div>
                                     </div>
                                     <input
@@ -435,46 +435,46 @@ export default function SquadPage() {
                                     />
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Vorname</label>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Vorname</label>
                                         <input
                                             required
                                             type="text"
                                             value={newPlayer.firstName}
                                             onChange={(e) => setNewPlayer({ ...newPlayer, firstName: e.target.value })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Nachname</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nachname</label>
                                         <input
                                             required
                                             type="text"
                                             value={newPlayer.lastName}
                                             onChange={(e) => setNewPlayer({ ...newPlayer, lastName: e.target.value })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Nummer</label>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nummer</label>
                                         <input
                                             required
                                             type="number"
                                             value={newPlayer.number}
                                             onChange={(e) => setNewPlayer({ ...newPlayer, number: e.target.value })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Position</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Position</label>
                                         <select
                                             value={newPlayer.position}
                                             onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option>Torwart</option>
                                             <option>Abwehr</option>
@@ -484,25 +484,25 @@ export default function SquadPage() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Status</label>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Status</label>
                                         <select
                                             value={newPlayer.status}
                                             onChange={(e) => setNewPlayer({ ...newPlayer, status: e.target.value as 'Active' | 'Injured' | 'Away' })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option value="Active">Aktiv</option>
                                             <option value="Injured">Verletzt</option>
                                             <option value="Away">Abwesend</option>
                                         </select>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-500 uppercase px-1">Rolle</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Rolle</label>
                                         <select
                                             value={newPlayer.role}
                                             onChange={(e) => setNewPlayer({ ...newPlayer, role: e.target.value as 'Captain' | 'Regular' })}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option value="Regular">Normal</option>
                                             <option value="Captain">Kapitän</option>
@@ -510,18 +510,18 @@ export default function SquadPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex gap-4 pt-6">
+                                <div className="flex gap-4 pt-8">
                                     <button
                                         type="button"
                                         onClick={() => setIsModalOpen(false)}
-                                        className="flex-1 px-6 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800 transition-colors font-medium text-sm"
+                                        className="flex-1 px-8 py-3.5 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-all font-black uppercase text-xs tracking-widest text-slate-400"
                                     >
                                         Abbrechen
                                     </button>
                                     <button
                                         disabled={isSubmitting}
                                         type="submit"
-                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-medium transition-all active:scale-95 shadow-lg shadow-red-600/10 text-sm disabled:opacity-50"
+                                        className="flex-1 bg-brand hover:bg-brand-dark text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 shadow-xl shadow-brand/20 disabled:opacity-50"
                                     >
                                         {isSubmitting ? "Wird gespeichert..." : "Speichern"}
                                     </button>
