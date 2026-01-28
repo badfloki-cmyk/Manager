@@ -18,6 +18,7 @@ import {
     Search
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getPlayers, Player } from "@/lib/squad";
 import { getTactics, createTactic, deleteTactic, TacticData } from "@/lib/tactics";
@@ -262,10 +263,10 @@ export default function TacticsPage() {
                             />
                         </div>
                         <div className="flex bg-white rounded-xl p-1 border border-slate-100 shadow-inner">
-                            {["All", "1. Mannschaft", "2. Mannschaft"].map((t) => (
+                            {(["All", "1. Mannschaft", "2. Mannschaft"] as const).map((t) => (
                                 <button
                                     key={t}
-                                    onClick={() => setTeamFilter(t as any)}
+                                    onClick={() => setTeamFilter(t)}
                                     className={cn(
                                         "flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
                                         teamFilter === t ? "bg-brand text-white shadow-md" : "text-slate-400 hover:text-slate-600"
@@ -435,11 +436,12 @@ export default function TacticsPage() {
                                     }}
                                 >
                                     {player.photoUrl ? (
-                                        <div className="w-full h-full rounded-full overflow-hidden">
-                                            <img
+                                        <div className="w-full h-full rounded-full overflow-hidden relative">
+                                            <Image
                                                 src={player.photoUrl}
                                                 alt={player.name}
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                className="object-cover"
                                             />
                                         </div>
                                     ) : (

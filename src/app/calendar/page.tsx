@@ -109,11 +109,11 @@ export default function CalendarPage() {
                         <Image src="/logo.jpg" alt="Logo" width={100} height={25} className="h-8 w-auto object-contain rounded shadow-sm" />
                         <h1 className="text-2xl font-black text-brand tracking-tight">Terminkalender</h1>
                     </div>
-                    <div className="flex bg-slate-50 rounded-xl p-1 border border-slate-100 shadow-inner">
-                        {["Both", "1. Mannschaft", "2. Mannschaft"].map((t) => (
+                    <div className="flex bg-white rounded-xl p-1 border border-slate-100 shadow-inner">
+                        {(["Both", "1. Mannschaft", "2. Mannschaft"] as const).map((t) => (
                             <button
                                 key={t}
-                                onClick={() => setTeam(t as "Both" | "1. Mannschaft" | "2. Mannschaft")}
+                                onClick={() => setTeam(t)}
                                 className={cn(
                                     "px-6 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all",
                                     team === t ? "bg-brand text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
@@ -239,7 +239,7 @@ export default function CalendarPage() {
                                                                 {event.notes && (
                                                                     <div className="space-y-3">
                                                                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Notizen</p>
-                                                                        <p className="text-sm text-slate-500 italic leading-relaxed font-medium">"{event.notes}"</p>
+                                                                        <p className="text-sm text-slate-500 italic leading-relaxed font-medium">&quot;{event.notes}&quot;</p>
                                                                     </div>
                                                                 )}
                                                             </div>
