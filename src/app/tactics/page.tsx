@@ -513,10 +513,10 @@ export default function TacticsPage() {
                                 <foreignObject
                                     key={note.id}
                                     x={note.x - 200}
-                                    y={note.y - 60}
+                                    y={note.y - 75}
                                     width="400"
-                                    height="120"
-                                    className="overflow-visible"
+                                    height="150"
+                                    className="overflow-visible pointer-events-none"
                                 >
 
                                     <motion.div
@@ -541,8 +541,14 @@ export default function TacticsPage() {
                                                 value={note.text}
                                                 onChange={(e) => updateNoteText(note.id, e.target.value)}
                                                 onBlur={() => setEditingNoteId(null)}
-                                                className="w-40 bg-white/90 backdrop-blur border-2 border-brand rounded-xl p-2 text-xs font-bold shadow-xl focus:outline-none resize-none"
-                                                style={{ color: note.color === '#ffffff' ? '#000000' : note.color }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        setEditingNoteId(null);
+                                                    }
+                                                }}
+                                                className="w-full h-full bg-white border-4 border-[#d4006d] rounded-2xl p-4 text-lg font-bold shadow-2xl focus:outline-none resize-none text-[#d4006d] pointer-events-auto"
+                                                onClick={(e) => e.stopPropagation()}
                                             />
                                         ) : (
                                             <div
@@ -552,21 +558,17 @@ export default function TacticsPage() {
                                                     setEditingNoteId(note.id);
                                                 }}
                                                 className={cn(
-                                                    "px-3 py-1.5 rounded-xl text-xs font-black shadow-sm border border-white/20 backdrop-blur-sm select-none transition-all",
-                                                    isAdmin ? "cursor-grab active:cursor-grabbing hover:scale-105" : "cursor-default"
+                                                    "w-full px-6 py-4 bg-white rounded-2xl text-xl font-black shadow-xl border-4 border-[#d4006d] transition-all text-[#d4006d] min-w-[150px] text-center pointer-events-auto",
+                                                    isAdmin ? "cursor-grab active:cursor-grabbing hover:scale-110" : "cursor-default"
                                                 )}
-                                                style={{
-                                                    backgroundColor: note.color === '#ffffff' ? '#ffffff' : note.color,
-                                                    color: note.color === '#ffffff' ? '#000000' : '#ffffff'
-                                                }}
                                             >
                                                 {note.text}
                                                 {isAdmin && (
                                                     <button
                                                         onClick={(e) => deleteNote(note.id, e)}
-                                                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        className="absolute -top-4 -right-4 bg-white text-red-500 rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity border-2 border-red-500"
                                                     >
-                                                        <X className="w-3 h-3" />
+                                                        <X className="w-5 h-5" />
                                                     </button>
                                                 )}
                                             </div>
