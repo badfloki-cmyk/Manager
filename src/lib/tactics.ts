@@ -22,7 +22,9 @@ export interface TacticData {
         y: number;
         color: string;
     }[];
+    description?: string;
     createdAt?: string;
+
     updatedAt?: string;
 }
 

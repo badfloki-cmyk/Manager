@@ -74,8 +74,10 @@ export default function TacticsPage() {
     const [notes, setNotes] = useState<{ id: string, text: string, x: number, y: number, color: string }[]>([]);
     const [isNoteMode, setIsNoteMode] = useState(false);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [tacticDescription, setTacticDescription] = useState("");
 
     const constraintsRef = useRef<HTMLDivElement>(null);
+
     const svgRef = useRef<SVGSVGElement>(null);
 
     // Initial Load
@@ -171,14 +173,17 @@ export default function TacticsPage() {
                 formation: "Custom",
                 players: playersOnPitch,
                 drawingData: JSON.stringify(paths),
-                notes: notes
+                notes: notes,
+                description: tacticDescription
             };
             await createTactic(data);
             const { tactics } = await getTactics();
             setSavedTactics(tactics);
             setShowSaveModal(false);
             setTacticName("");
+            // Do not clear tacticDescription here, as the user might want to keep it for the next save or edit
         } catch (err) {
+
             console.error("Save error:", err);
         } finally {
             setIsSaving(false);
@@ -190,8 +195,10 @@ export default function TacticsPage() {
         setPlayersOnPitch(tactic.players);
         setPaths(tactic.drawingData ? JSON.parse(tactic.drawingData) : []);
         setNotes(tactic.notes || []);
+        setTacticDescription(tactic.description || "");
         setShowLoadModal(false);
     };
+
 
     const deleteSavedTactic = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -255,8 +262,10 @@ export default function TacticsPage() {
             setPlayersOnPitch([]);
             setPaths([]);
             setNotes([]);
+            setTacticDescription("");
         }
     };
+
 
     const filteredAvailable = availablePlayers.filter(p =>
         !playersOnPitch.find(pitchP => pitchP.id === p._id) &&
@@ -495,7 +504,22 @@ export default function TacticsPage() {
                                 className="overflow-visible"
                                 style={{ transform: 'translate(-50%, -50%)' }}
                             >
-                                <div className="relative group">
+                                <motion.div
+                                    className="relative group"
+                                    drag={isAdmin}
+                                    dragConstraints={constraintsRef}
+                                    dragElastic={0}
+                                    dragMomentum={false}
+                                    onDragEnd={(_, info) => {
+                                        if (!svgRef.current) return;
+                                        const rect = svgRef.current.getBoundingClientRect();
+                                        const x = ((info.point.x - rect.left) / rect.width) * 100;
+                                        const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                        setNotes(prev => prev.map(n =>
+                                            n.id === note.id ? { ...n, x, y } : n
+                                        ));
+                                    }}
+                                >
                                     {editingNoteId === note.id ? (
                                         <textarea
                                             autoFocus
@@ -532,9 +556,10 @@ export default function TacticsPage() {
                                             )}
                                         </div>
                                     )}
-                                </div>
+                                </motion.div>
                             </foreignObject>
                         ))}
+
 
                         <AnimatePresence>
                             {paths.map(path => (
@@ -744,8 +769,27 @@ export default function TacticsPage() {
                         </span>
                     </div>
                 </div>
+
+                <div className="space-y-4">
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Beschreibung</h3>
+                    <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+                        {isAdmin ? (
+                            <textarea
+                                value={tacticDescription}
+                                onChange={(e) => setTacticDescription(e.target.value)}
+                                placeholder="Taktik hier beschreiben..."
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 text-xs font-medium focus:outline-none focus:border-brand/30 resize-none h-40 shadow-inner"
+                            />
+                        ) : (
+                            <div className="text-xs font-medium text-slate-600 leading-relaxed min-h-[100px] whitespace-pre-wrap">
+                                {tacticDescription || "Keine Beschreibung verfügbar."}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
+
 
         <div className="p-6 border-t border-slate-100 bg-slate-50">
             <p className="text-[10px] text-slate-400 leading-relaxed italic font-medium">

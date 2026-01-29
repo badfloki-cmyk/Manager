@@ -21,7 +21,9 @@ export interface ITactic extends Document {
         y: number;
         color: string;
     }[];
+    description?: string;
 }
+
 
 const TacticSchema: Schema = new Schema(
     {
@@ -48,9 +50,11 @@ const TacticSchema: Schema = new Schema(
                 y: { type: Number, required: true },
                 color: { type: String, required: true },
             }
-        ]
+        ],
+        description: { type: String }
     },
     { timestamps: true }
+
 );
 
 const Tactic: Model<ITactic> = mongoose.models.Tactic || mongoose.model<ITactic>('Tactic', TacticSchema);
