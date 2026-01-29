@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     ArrowLeft,
@@ -96,48 +96,27 @@ export default function TacticsPage() {
     }, []);
 
     // Drawing Handlers
+    const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!svgRef.current) return { x: 0, y: 0 };
+        const rect = svgRef.current.getBoundingClientRect();
+        const clientX = 'touches' in e && e.touches.length > 0
+            ? e.touches[0].clientX
+            : (e as React.MouseEvent).clientX;
+        const clientY = 'touches' in e && e.touches.length > 0
+            ? e.touches[0].clientY
+            : (e as React.MouseEvent).clientY;
+
+        return {
+            x: ((clientX - rect.left) / rect.width) * 100,
+            y: ((clientY - rect.top) / rect.height) * 100
+        };
+    };
+
     const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!isDrawMode || !svgRef.current) return;
+        if (!isAdmin || !svgRef.current) return;
 
-        const rect = svgRef.current.getBoundingClientRect();
-        const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left;
-        const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top;
-
-        setCurrentPath({
-            id: Date.now(),
-            points: [{ x, y }],
-            color: drawColor,
-            width: 3
-        });
-    };
-
-    const draw = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!currentPath || !svgRef.current) return;
-
-        const rect = svgRef.current.getBoundingClientRect();
-        const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left;
-        const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top;
-
-        setCurrentPath(prev => ({
-            ...prev!,
-            points: [...prev!.points, { x, y }]
-        }));
-    };
-
-    const stopDrawing = () => {
-        if (currentPath) {
-            setPaths(prev => [...prev, currentPath]);
-            setCurrentPath(null);
-        }
-    };
-
-    // Note Handlers
-    const addNote = (e: React.MouseEvent | React.TouchEvent) => {
-        if (isNoteMode && svgRef.current) {
-            const rect = svgRef.current.getBoundingClientRect();
-            const x = (('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left) / rect.width * 100;
-            const y = (('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top) / rect.height * 100;
-
+        if (isNoteMode) {
+            const { x, y } = getCoordinates(e);
             const newNote = {
                 id: Date.now().toString(),
                 text: "Neue Notiz",
@@ -147,9 +126,43 @@ export default function TacticsPage() {
             };
             setNotes(prev => [...prev, newNote]);
             setEditingNoteId(newNote.id);
-            setIsNoteMode(false); // Switch back to select mode after placing
+            setIsNoteMode(false);
+            return;
         }
+
+        if (!isDrawMode) return;
+
+        const { x, y } = getCoordinates(e);
+        setIsDrawing(true);
+        setCurrentPath({
+            id: Date.now().toString(),
+            points: [{ x, y }],
+            color: drawColor,
+            width: 3
+        });
     };
+
+    const draw = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isDrawing || !currentPath || !svgRef.current) return;
+
+        const { x, y } = getCoordinates(e);
+        setCurrentPath(prev => prev ? {
+            ...prev,
+            points: [...prev.points, { x, y }]
+        } : null);
+    };
+
+    const stopDrawing = () => {
+        if (currentPath) {
+            setPaths(prev => [...prev, currentPath]);
+            setCurrentPath(null);
+        }
+        setIsDrawing(false);
+    };
+
+
+    // Note Handlers removed as handled in startDrawing or not needed separately
+
 
     const updateNoteText = (id: string, text: string) => {
         setNotes(prev => prev.map(n => n.id === id ? { ...n, text } : n));
@@ -482,6 +495,8 @@ export default function TacticsPage() {
                         {/* Drawing Layer */}
                         <svg
                             ref={svgRef}
+                            viewBox="0 0 100 100"
+                            preserveAspectRatio="none"
                             className={cn(
                                 "absolute inset-0 w-full h-full z-20 transition-all cursor-crosshair",
                                 !isDrawMode && !isNoteMode && "pointer-events-none cursor-default"
@@ -493,19 +508,19 @@ export default function TacticsPage() {
                             onTouchStart={startDrawing}
                             onTouchMove={draw}
                             onTouchEnd={stopDrawing}
-                            onClick={addNote}
                         >
                             {/* Notes Layer */}
                             {notes.map(note => (
                                 <foreignObject
                                     key={note.id}
-                                    x={`${note.x}%`}
-                                    y={`${note.y}%`}
-                                    width="150"
-                                    height="100"
+                                    x={note.x}
+                                    y={note.y}
+                                    width="40"
+                                    height="20"
                                     className="overflow-visible"
                                     style={{ transform: 'translate(-50%, -50%)' }}
                                 >
+
                                     <motion.div
                                         className="relative group"
                                         drag={isAdmin}
