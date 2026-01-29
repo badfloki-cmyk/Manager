@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     MessageSquare,
@@ -22,6 +22,7 @@ import { useSession } from "next-auth/react";
 interface Message {
     _id: string;
     author: string;
+    authorImage?: string;
     content: string;
     createdAt: string;
     type: "announcement" | "general";
@@ -113,7 +114,7 @@ export default function MessagesPage() {
 
     const filteredMessages = filter === "all"
         ? messages
-        : messages.filter(m => m.type === "announcement");
+        : messages.filter((m: Message) => m.type === "announcement");
 
     const formatTime = (timestamp: string) => {
         const date = new Date(timestamp);
@@ -174,12 +175,12 @@ export default function MessagesPage() {
                     </div>
                     <div className="bg-white border border-slate-100 rounded-[2rem] p-8 text-center shadow-xl shadow-slate-200/50 group hover:border-brand/20 transition-all">
                         <Bell className="w-8 h-8 text-brand mx-auto mb-3" />
-                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{messages.filter(m => m.type === "announcement").length}</p>
+                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{messages.filter((m: Message) => m.type === "announcement").length}</p>
                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1">Ankündigungen</p>
                     </div>
                     <div className="bg-white border border-slate-100 rounded-[2rem] p-8 text-center shadow-xl shadow-slate-200/50 group hover:border-brand/20 transition-all">
                         <Pin className="w-8 h-8 text-brand mx-auto mb-3" />
-                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{messages.filter(m => m.pinned).length}</p>
+                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{messages.filter((m: Message) => m.pinned).length}</p>
                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1">Angepinnt</p>
                     </div>
                 </div>
@@ -198,7 +199,7 @@ export default function MessagesPage() {
                         </div>
                     ) : (
                         <AnimatePresence mode="popLayout">
-                            {filteredMessages.map((message, index) => (
+                            {filteredMessages.map((message: Message, index: number) => (
                                 <motion.div
                                     key={message._id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -215,7 +216,7 @@ export default function MessagesPage() {
                                                 {message.authorImage ? (
                                                     <Image src={message.authorImage} alt={message.author} width={48} height={48} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    message.author.split(' ').map(n => n[0]).join('')
+                                                    message.author.split(' ').map((n: string) => n[0]).join('')
                                                 )}
                                             </div>
                                             <div>
@@ -266,7 +267,7 @@ export default function MessagesPage() {
                                 <div className="flex gap-4 mb-4">
                                     <select
                                         value={messageType}
-                                        onChange={(e) => setMessageType(e.target.value as "general" | "announcement")}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMessageType(e.target.value as "general" | "announcement")}
                                         className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest"
                                     >
                                         <option value="general">Allgemein</option>
@@ -274,7 +275,7 @@ export default function MessagesPage() {
                                     </select>
                                     <select
                                         value={messageTeam}
-                                        onChange={(e) => setMessageTeam(e.target.value as "Alle" | "1. Mannschaft" | "2. Mannschaft")}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMessageTeam(e.target.value as "Alle" | "1. Mannschaft" | "2. Mannschaft")}
                                         className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest"
                                     >
                                         <option value="Alle">Alle Teams</option>
@@ -285,7 +286,7 @@ export default function MessagesPage() {
                                 <div className="flex gap-6">
                                     <textarea
                                         value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewMessage(e.target.value)}
                                         placeholder="Nachricht schreiben..."
                                         rows={1}
                                         className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-brand/30 focus:bg-white transition-all font-medium shadow-inner placeholder:text-slate-300 resize-none min-h-[56px]"

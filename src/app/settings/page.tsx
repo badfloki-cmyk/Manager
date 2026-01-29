@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Settings,
@@ -354,7 +354,7 @@ export default function SettingsPage() {
                                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Anzeigename</label>
                                                         <input
                                                             value={profileName}
-                                                            onChange={(e) => setProfileName(e.target.value)}
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileName(e.target.value)}
                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:border-brand/30 outline-none transition-all"
                                                             placeholder="Dein Name"
                                                         />
@@ -403,7 +403,7 @@ export default function SettingsPage() {
                                                         <input
                                                             required
                                                             value={newUserName}
-                                                            onChange={(e) => setNewUserName(e.target.value)}
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewUserName(e.target.value)}
                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:border-brand/30 outline-none transition-all"
                                                             placeholder="z.B. Max Mustermann"
                                                         />
@@ -414,7 +414,7 @@ export default function SettingsPage() {
                                                             required
                                                             type="email"
                                                             value={newUserEmail}
-                                                            onChange={(e) => setNewUserEmail(e.target.value)}
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewUserEmail(e.target.value)}
                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:border-brand/30 outline-none transition-all"
                                                             placeholder="max@beispiel.de"
                                                         />
@@ -425,7 +425,7 @@ export default function SettingsPage() {
                                                             required
                                                             type="password"
                                                             value={newUserPassword}
-                                                            onChange={(e) => setNewUserPassword(e.target.value)}
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewUserPassword(e.target.value)}
                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:border-brand/30 outline-none transition-all"
                                                             placeholder="••••••••"
                                                         />
@@ -434,7 +434,7 @@ export default function SettingsPage() {
                                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Rolle</label>
                                                         <select
                                                             value={newUserRole}
-                                                            onChange={(e) => setNewUserRole(e.target.value)}
+                                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewUserRole(e.target.value)}
                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-black uppercase tracking-widest focus:border-brand/30 outline-none transition-all appearance-none cursor-pointer"
                                                         >
                                                             <option value="player">Spieler (Lesen)</option>
@@ -470,7 +470,7 @@ export default function SettingsPage() {
                                                         <div className="flex justify-center py-6">
                                                             <Loader2 className="w-6 h-6 animate-spin text-slate-200" />
                                                         </div>
-                                                    ) : users.map(user => (
+                                                    ) : users.map((user: User) => (
                                                         <div key={user._id} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
                                                             <div className="flex items-center gap-4">
                                                                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">

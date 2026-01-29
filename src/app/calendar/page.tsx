@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Calendar as CalendarIcon,
@@ -275,11 +273,11 @@ export default function CalendarPage() {
                                 exit={{ opacity: 0, y: -20 }}
                                 className="space-y-12"
                             >
-                                {Array.from(new Set(events.map((e: Event) => {
+                                {(Array.from(new Set(events.map((e: Event) => {
                                     const d = new Date(e.date);
                                     return `${d.toLocaleString('de-DE', { month: 'long' })} ${d.getFullYear()}`;
-                                }))).map((monthGroup: any) => (
-                                    <div key={monthGroup as string} className="space-y-6">
+                                }))) as string[]).map((monthGroup: string) => (
+                                    <div key={monthGroup} className="space-y-6">
                                         <h3 className="text-sm font-black text-slate-300 uppercase tracking-[0.2em] flex items-center gap-4">
                                             <span className="bg-slate-100 h-px flex-1" />
                                             {monthGroup}
@@ -585,7 +583,7 @@ export default function CalendarPage() {
                                         type="text"
                                         placeholder="Spielfreies Training / Auswärtsspiel..."
                                         value={newEvent.title}
-                                        onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewEvent({ ...newEvent, title: e.target.value })}
                                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                     />
                                 </div>
@@ -595,7 +593,7 @@ export default function CalendarPage() {
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Typ</label>
                                         <select
                                             value={newEvent.type}
-                                            onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as "Training" | "Match" | "Event" })}
+                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewEvent({ ...newEvent, type: e.target.value as "Training" | "Match" | "Event" })}
                                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option value="Training">Training</option>
@@ -607,7 +605,7 @@ export default function CalendarPage() {
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Team</label>
                                         <select
                                             value={newEvent.team}
-                                            onChange={(e) => setNewEvent({ ...newEvent, team: e.target.value as "Both" | "1. Mannschaft" | "2. Mannschaft" })}
+                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewEvent({ ...newEvent, team: e.target.value as "Both" | "1. Mannschaft" | "2. Mannschaft" })}
                                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner appearance-none cursor-pointer"
                                         >
                                             <option value="Both">Beide Teams</option>
@@ -623,7 +621,7 @@ export default function CalendarPage() {
                                         required
                                         type="datetime-local"
                                         value={newEvent.date}
-                                        onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewEvent({ ...newEvent, date: e.target.value })}
                                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                     />
                                 </div>
@@ -635,7 +633,7 @@ export default function CalendarPage() {
                                             type="text"
                                             placeholder="Parkplatz..."
                                             value={newEvent.meetingPoint}
-                                            onChange={(e) => setNewEvent({ ...newEvent, meetingPoint: e.target.value })}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewEvent({ ...newEvent, meetingPoint: e.target.value })}
                                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                         />
                                     </div>
@@ -644,7 +642,7 @@ export default function CalendarPage() {
                                         <input
                                             type="time"
                                             value={newEvent.meetingTime}
-                                            onChange={(e) => setNewEvent({ ...newEvent, meetingTime: e.target.value })}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewEvent({ ...newEvent, meetingTime: e.target.value })}
                                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium shadow-inner"
                                         />
                                     </div>
@@ -655,7 +653,7 @@ export default function CalendarPage() {
                                     <textarea
                                         placeholder="Zusätzliche Infos..."
                                         value={newEvent.notes}
-                                        onChange={(e) => setNewEvent({ ...newEvent, notes: e.target.value })}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewEvent({ ...newEvent, notes: e.target.value })}
                                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand/30 focus:bg-white transition-all text-sm font-medium h-24 resize-none shadow-inner"
                                     />
                                 </div>
