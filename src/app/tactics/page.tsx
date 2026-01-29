@@ -133,9 +133,8 @@ export default function TacticsPage() {
         if (!isDrawMode) return;
 
         const { x, y } = getCoordinates(e);
-        setIsDrawing(true);
         setCurrentPath({
-            id: Date.now().toString(),
+            id: Date.now(),
             points: [{ x, y }],
             color: drawColor,
             width: 3
@@ -143,7 +142,7 @@ export default function TacticsPage() {
     };
 
     const draw = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!isDrawing || !currentPath || !svgRef.current) return;
+        if (!currentPath || !svgRef.current) return;
 
         const { x, y } = getCoordinates(e);
         setCurrentPath(prev => prev ? {
@@ -157,8 +156,8 @@ export default function TacticsPage() {
             setPaths(prev => [...prev, currentPath]);
             setCurrentPath(null);
         }
-        setIsDrawing(false);
     };
+
 
 
     // Note Handlers removed as handled in startDrawing or not needed separately
