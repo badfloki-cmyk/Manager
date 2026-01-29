@@ -27,6 +27,7 @@ export async function POST(req: Request) {
         const newMessage = await Message.create({
             author: session.user?.name,
             authorEmail: session.user?.email,
+            authorImage: session.user?.image,
             content,
             type: type || 'general',
             team: team || 'Alle',

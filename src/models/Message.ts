@@ -9,6 +9,9 @@ const MessageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    authorImage: {
+        type: String,
+    },
     content: {
         type: String,
         required: true,

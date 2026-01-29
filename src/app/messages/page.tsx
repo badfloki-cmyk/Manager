@@ -211,8 +211,12 @@ export default function MessagesPage() {
                                 >
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-sm font-black text-white shadow-lg shadow-brand/20">
-                                                {message.author.split(' ').map(n => n[0]).join('')}
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-sm font-black text-white shadow-lg shadow-brand/20 overflow-hidden">
+                                                {message.authorImage ? (
+                                                    <Image src={message.authorImage} alt={message.author} width={48} height={48} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    message.author.split(' ').map(n => n[0]).join('')
+                                                )}
                                             </div>
                                             <div>
                                                 <p className="font-black text-slate-900 text-lg tracking-tight">{message.author}</p>

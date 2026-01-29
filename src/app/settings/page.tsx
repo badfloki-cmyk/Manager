@@ -17,7 +17,8 @@ import {
     ShieldAlert,
     Loader2,
     Save,
-    Trash2
+    Trash2,
+    Plus
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -40,6 +41,11 @@ interface SettingSection {
 }
 
 const settingSections: SettingSection[] = [
+    {
+        title: "Mein Profil",
+        description: "Dein Name und Profilbild anpassen",
+        icon: UserCircle,
+    },
     {
         title: "Club-Profil",
         description: "Name, Logo und Vereinsinformationen bearbeiten",
@@ -90,6 +96,11 @@ export default function SettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
+    // Profile state
+    const [profileName, setProfileName] = useState("");
+    const [profileImage, setProfileImage] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+
     const fetchUsers = useCallback(async () => {
         if (!isAdmin) return;
         setIsLoadingUsers(true);
@@ -109,6 +120,60 @@ export default function SettingsPage() {
             fetchUsers();
         }
     }, [activeSection, fetchUsers]);
+
+    useEffect(() => {
+        if (session?.user) {
+            setProfileName(session.user.name || "");
+            setProfileImage(session.user.image || "");
+        }
+    }, [session]);
+
+    const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            const res = await fetch(`/api/upload?filename=${file.name}`, {
+                method: 'POST',
+                body: file,
+            });
+            const blob = await res.json();
+            setProfileImage(blob.url);
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Fehler beim Hochladen.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        if (!session?.user?.id) return;
+        setIsSaving(true);
+        setSaveStatus(null);
+        try {
+            const res = await fetch(`/api/users/${session.user.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: profileName,
+                    image: profileImage
+                }),
+            });
+
+            if (res.ok) {
+                setSaveStatus({ type: 'success', message: "Profil aktualisiert! Bitte lade die Seite neu, um die Änderungen überall zu sehen." });
+            } else {
+                const data = await res.json();
+                setSaveStatus({ type: 'error', message: data.error || "Fehler beim Speichern." });
+            }
+        } catch {
+            setSaveStatus({ type: 'error', message: "Verbindungsfehler." });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleCreateUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -256,6 +321,68 @@ export default function SettingsPage() {
                             </motion.button>
 
                             <AnimatePresence>
+                                {activeSection === "Mein Profil" && section.title === "Mein Profil" && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="overflow-hidden px-2"
+                                    >
+                                        <div className="bg-slate-50 border border-slate-100 rounded-[2rem] p-8 space-y-8">
+                                            <div className="flex flex-col md:flex-row items-center gap-8">
+                                                <div className="relative group">
+                                                    <div className="w-32 h-32 rounded-[2rem] bg-white border border-slate-200 overflow-hidden shadow-xl shadow-slate-200/50">
+                                                        {profileImage ? (
+                                                            <Image src={profileImage} alt="Profile" width={128} height={128} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
+                                                                <UserCircle className="w-16 h-16" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-[2rem]">
+                                                        <input type="file" className="hidden" onChange={handleProfileUpload} accept="image/*" />
+                                                        {isUploading ? (
+                                                            <Loader2 className="w-8 h-8 text-white animate-spin" />
+                                                        ) : (
+                                                            <Plus className="w-8 h-8 text-white" />
+                                                        )}
+                                                    </label>
+                                                </div>
+                                                <div className="flex-1 space-y-4 w-full">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Anzeigename</label>
+                                                        <input
+                                                            value={profileName}
+                                                            onChange={(e) => setProfileName(e.target.value)}
+                                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:border-brand/30 outline-none transition-all"
+                                                            placeholder="Dein Name"
+                                                        />
+                                                    </div>
+                                                    <div className="flex items-center justify-between gap-4 pt-2">
+                                                        {saveStatus && (
+                                                            <span className={cn(
+                                                                "text-[10px] font-black uppercase tracking-widest",
+                                                                saveStatus.type === 'success' ? "text-emerald-500" : "text-brand"
+                                                            )}>
+                                                                {saveStatus.message}
+                                                            </span>
+                                                        )}
+                                                        <button
+                                                            onClick={handleSaveProfile}
+                                                            disabled={isSaving || isUploading}
+                                                            className="bg-brand hover:bg-brand-dark text-white px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-brand/10 transition-all flex items-center gap-2 disabled:opacity-50 ml-auto"
+                                                        >
+                                                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                                            Speichern
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
                                 {activeSection === "Benutzer & Rollen" && section.title === "Benutzer & Rollen" && (
                                     <motion.div
                                         initial={{ opacity: 0, height: 0 }}
